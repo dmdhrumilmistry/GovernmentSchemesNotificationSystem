@@ -1,10 +1,13 @@
 #!env/bin/python
 from bs4 import BeautifulSoup
 from PyTerminalColor.TerminalColor import TerminalColor
+from urllib.parse import urljoin
+
 
 import json
 import requests
 import os
+
 
 colorize = TerminalColor(style='BOLD')
 
@@ -37,7 +40,33 @@ def get_links(file:str=None):
         exit(2)
 
 
-def get_latest_notification(url:str):
+def create_dir(path:str):
+    if not os.path.exists(path):
+        __success(f"{path} directory created.")
+        os.makedirs(path)
+    else:
+        __info(f"{path} Already Exists.")
+
+
+def dump_dict_data(path:str, data:dict):
+    if os.path.exists(path):
+        __info(f"Overwriting {path} file with new data.")
+    else:
+        __info(f"Writing data to {path}")
+    try:
+        with open(path, 'w') as f:
+            f.write(json.dumps(data, indent=4))
+    except json.JSONDecodeError:
+        __error(f"Invalid Json Formatted data.")
+        exit(2)
+    
+
+def url_to_json_fname(url:str):
+    return f'{url.replace("http://","").replace("https://","").replace("/","-")}.json'
+
+
+def get_latest_notifications(url:str, last_page:int=False):
+    all_notifications = []
     # get html data
     html_doc = requests.get(url).content.decode('utf-8')
     
@@ -47,19 +76,24 @@ def get_latest_notification(url:str):
     # extract last notification page
     last_page = soup.find('li', {"class":"last"}).find('a').get('href').split('?')[-1].split('=')[-1]
     
-    print(soup.title.string)
     content_block = soup.find('div', id='content')
     
     notifications = content_block.find('div', {"class":"item-list"}).find_all('li')
     for notification in notifications:
         a_notification = notification.find('a')
-        print(a_notification.contents[0], a_notification.get('href'))
+        all_notifications.append((urljoin(url, a_notification.get('href')), a_notification.contents[0]))
+
+    return {"url": all_notifications}
 
 
 if __name__ == '__main__':
     # basic conf
     links_file_path = 'links.json'
     check_for = "India"
+    data_dir = os.path.join(os.getcwd(), 'notification_data')
+
+    # create directory to save data
+    create_dir(data_dir)
 
     # get data from file
     links:dict = get_links(links_file_path)
@@ -68,4 +102,4 @@ if __name__ == '__main__':
     target_links = links.get(check_for, None)
     if target_links.__iter__:
         for target_link in target_links:
-            get_latest_notification(target_link)
+            dump_dict_data(os.path.join(data_dir, url_to_json_fname(target_link)), get_latest_notifications(target_link))
