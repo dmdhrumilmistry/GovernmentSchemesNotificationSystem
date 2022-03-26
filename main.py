@@ -1,4 +1,5 @@
 #!env/bin/python
+from asyncio import FastChildWatcher
 from bs4 import BeautifulSoup
 from PyTerminalColor.TerminalColor import TerminalColor
 from urllib.parse import urljoin
@@ -244,7 +245,17 @@ def get_saved_notifications(file_path: str):
         return False
 
 
-if __name__ == '__main__':
+def main():
+    '''
+    description:
+        starts the main process.
+
+    params:
+        None
+
+    returns: 
+        None
+    '''
     # basic conf
     saved_file_path = 'notification_data/www.india.gov.in-my-government-schemes.json'
     data_dir = os.path.join(os.getcwd(), 'notification_data')
@@ -290,3 +301,14 @@ if __name__ == '__main__':
 
     dump_dict_data(os.path.join(data_dir, url_to_json_fname(base_link)), {
                    "urls": all_notifications})
+
+
+if __name__ == '__main__':
+    colorize.cprint('='*35, use_default=False, fgcolor='CYAN', style='BOLD')
+    colorize.cprint('Govt. Scheme Notification System', use_default=False, fgcolor='GREEN', style='BOLD')
+    colorize.cprint('='*35, use_default=False, fgcolor='CYAN', style='BOLD')
+    colorize.cprint("Written By", use_default=False)
+    colorize.cprint('dmdhrumilmistry', use_default=False, fgcolor='YELLOW', style='BOLD')
+    colorize.cprint('-'*35, use_default=False, fgcolor='CYAN', style='BOLD')
+    print()
+    main()
