@@ -1,7 +1,8 @@
-#!env/bin/python
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from terminal_msg import *
+from notifier import notify_users
+
 
 import json
 import requests
@@ -132,7 +133,7 @@ def get_latest_notifications(url: str):
 
     params:
         url (str): url of the page
-    
+
     returns: 
         None
     '''
@@ -164,7 +165,7 @@ def get_saved_notifications(file_path: str):
 
     params:
         file_path (str): path of the saved notifications file
-    
+
     returns: 
         dict | False
     '''
@@ -182,13 +183,14 @@ def get_saved_notifications(file_path: str):
         return False
 
 
-def main():
+def main(csv_file: str, sender_mail: str, sender_passwd: str):
     '''
     description:
-        starts the main process.
+        starts the app.
 
     params:
-        None
+        sender_mail (str): sender gmail address
+        sender_passwd (str): sender gmail app password
 
     returns: 
         None
@@ -230,11 +232,17 @@ def main():
         # else inform them about all the available schemes
         if len(new_notifications) != 0:
             info("Informing users about the new schemes.")
+            notify_users(csv_file=csv_file, notifications=new_notifications,
+                         sender_email=sender_mail, sender_passwd=sender_passwd)
         else:
             info(
                 "No new schemes were published. Informing them about the all the schemes available.")
+            notify_users(csv_file=csv_file, notifications=all_notifications,
+                         sender_email=sender_mail, sender_passwd=sender_passwd)
     else:
-        info("Scraping data for the first time.")
+        info("Scraping data for the first time. Informing Users about all currently available schemes.")
+        notify_users(csv_file=csv_file, notifications=all_notifications,
+                     sender_email=sender_mail, sender_passwd=sender_passwd)
 
     dump_dict_data(os.path.join(data_dir, url_to_json_fname(base_link)), {
                    "urls": all_notifications})
@@ -242,10 +250,15 @@ def main():
 
 if __name__ == '__main__':
     colorize.cprint('='*35, use_default=False, fgcolor='CYAN', style='BOLD')
-    colorize.cprint('Govt. Scheme Notification System', use_default=False, fgcolor='GREEN', style='BOLD')
+    colorize.cprint('Govt. Scheme Notification System',
+                    use_default=False, fgcolor='GREEN', style='BOLD')
     colorize.cprint('='*35, use_default=False, fgcolor='CYAN', style='BOLD')
     colorize.cprint("Written By", use_default=False)
-    colorize.cprint('dmdhrumilmistry', use_default=False, fgcolor='YELLOW', style='BOLD')
+    colorize.cprint('dmdhrumilmistry', use_default=False,
+                    fgcolor='YELLOW', style='BOLD')
     colorize.cprint('-'*35, use_default=False, fgcolor='CYAN', style='BOLD')
     print()
-    main()
+
+    csv_file = 'users.csv'
+    main(csv_file, sender_mail='yourmail@gmail.com',
+         sender_passwd='your_app_password')
