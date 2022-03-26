@@ -16,6 +16,12 @@ There are several schemes available from the Government of India [(GoI)](https:/
     ```bash
     pip install -r requirements.txt
     ```
+- Generate Google Account App password and update credentials in main.py file on line 263
+    ```python
+    main(csv_file, sender_mail='yourmail@gmail.com',
+    sender_passwd='your_app_password')
+    ```
+- Update User Name and their email addresses in `users.csv` file.
 - Start Application
     ```bash
     python main.py
