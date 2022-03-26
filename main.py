@@ -1,77 +1,14 @@
 #!env/bin/python
-from asyncio import FastChildWatcher
 from bs4 import BeautifulSoup
-from PyTerminalColor.TerminalColor import TerminalColor
 from urllib.parse import urljoin
-
+from terminal_msg import *
 
 import json
 import requests
 import os
 
 
-colorize = TerminalColor(style='BOLD')
 all_notifications = []
-
-
-def __error(message: str):
-    '''
-    description:
-        prints formatted error message.
-
-    params:
-        message(str) : message to be printed
-
-    returns: 
-        None
-    '''
-    colorize.cprint(f"[X] {message}", use_default=False,
-                    fgcolor='YELLOW', bgcolor='RED')
-
-
-def __warn(message: str):
-    '''
-    description:
-        prints formatted warning message.
-
-    params:
-        message(str) : message to be printed
-
-    returns: 
-        None
-    '''
-    colorize.cprint(f"[!] {message}", use_default=False,
-                    fgcolor='BLACK', bgcolor='YELLOW')
-
-
-def __success(message: str):
-    '''
-    description:
-        prints formatted success message.
-
-    params:
-        message(str) : message to be printed
-
-    returns: 
-        None
-    '''
-    colorize.cprint(f"[✓] {message}", use_default=False,
-                    fgcolor='GREEN', bgcolor='BLACK')
-
-
-def __info(message: str):
-    '''
-    description:
-        prints formatted info message.
-
-    params:
-        message(str) : message to be printed
-
-    returns: 
-        None
-    '''
-    colorize.cprint(f"[*] {message}", use_default=False,
-                    fgcolor='YELLOW', bgcolor='BLACK')
 
 
 def get_links(file: str = None):
@@ -89,16 +26,16 @@ def get_links(file: str = None):
         dict
     '''
     if not os.path.exists(file):
-        __error("Links File not found!")
+        error("Links File not found!")
         exit(2)
     else:
-        __success(f"Using {file} file for links.")
+        success(f"Using {file} file for links.")
     try:
         with open(file, 'r') as f:
             data = json.loads(f.read())
         return data
     except json.JSONDecodeError:
-        __error("Json file is in Invalid format.")
+        error("Json file is in Invalid format.")
         exit(2)
 
 
@@ -115,10 +52,10 @@ def create_dir(path: str):
         None
     '''
     if not os.path.exists(path):
-        __success(f"{path} directory created.")
+        success(f"{path} directory created.")
         os.makedirs(path)
     else:
-        __info(f"{path} Already Exists.")
+        info(f"{path} Already Exists.")
 
 
 def dump_dict_data(path: str, data: dict, indent: int = 4):
@@ -137,14 +74,14 @@ def dump_dict_data(path: str, data: dict, indent: int = 4):
         None
     '''
     if os.path.exists(path):
-        __info(f"Overwriting {path} file with new data.")
+        info(f"Overwriting {path} file with new data.")
     else:
-        __info(f"Writing data to {path}")
+        info(f"Writing data to {path}")
     try:
         with open(path, 'w') as f:
             f.write(json.dumps(data, indent=indent))
     except json.JSONDecodeError:
-        __error(f"Invalid Json Formatted data.")
+        error(f"Invalid Json Formatted data.")
         exit(2)
 
 
@@ -232,16 +169,16 @@ def get_saved_notifications(file_path: str):
         dict | False
     '''
     if not os.path.exists(file_path):
-        __warn(f"{file_path} saved notifications file not found.")
+        warn(f"{file_path} saved notifications file not found.")
         return False
 
-    __info(f"{file_path} saved notifications found.")
+    info(f"{file_path} saved notifications found.")
     try:
         with open(file_path, 'r') as f:
             data: dict = json.loads(f.read())
         return data
     except json.JSONDecodeError:
-        __error(f"{file_path} json data is in invalid format.")
+        error(f"{file_path} json data is in invalid format.")
         return False
 
 
@@ -275,7 +212,7 @@ def main():
     for page_no in range(last_page+1):
         page_link = urljoin(base_link, f'?page={page_no}')
         get_latest_notifications(page_link)
-        __success(f"{page_link} notifications loaded.")
+        success(f"{page_link} notifications loaded.")
 
     # extract new notifications
     if saved_notifications:
@@ -292,12 +229,12 @@ def main():
         # inform users about the new schemes if available
         # else inform them about all the available schemes
         if len(new_notifications) != 0:
-            __info("Informing users about the new schemes.")
+            info("Informing users about the new schemes.")
         else:
-            __info(
+            info(
                 "No new schemes were published. Informing them about the all the schemes available.")
     else:
-        __info("Scraping data for the first time.")
+        info("Scraping data for the first time.")
 
     dump_dict_data(os.path.join(data_dir, url_to_json_fname(base_link)), {
                    "urls": all_notifications})
