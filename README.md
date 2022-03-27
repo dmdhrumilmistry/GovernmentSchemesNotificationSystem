@@ -27,3 +27,14 @@ There are several schemes available from the Government of India [(GoI)](https:/
     python main.py
     ```
     > `Note` : When you run the project for first time, it'll fetch all the schemes and save into a json file, the users will be notified about the schemes. After this, only new schemes will be saved into a new json file and notify users about it.
+
+## TODOs
+- [ ] Create API using Flask
+
+## Contributions
+- Found a bug? Create an issue or create a fork, create new branch fix-bug branch, fix the bug, and create pull request.
+- For functionality create an issue, We'll try to add that functionality if it could be helpful to the users.
+
+## License
+[MIT License](https://github.com/dmdhrumilmistry/GovernmentSchemesNotificationSystem/blob/master/LICENSE)
+
